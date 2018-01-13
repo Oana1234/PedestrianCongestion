@@ -32,11 +32,11 @@ public class AllLocationsActivity extends AppCompatActivity  {
 
         finalLocations = new ArrayList<>();
 
-        new PostDataTOServer().execute();
+        new GetDataFromServer().execute();
 
     }
 
-    private class PostDataTOServer extends AsyncTask<Void, Void, Void> {
+    private class GetDataFromServer extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
