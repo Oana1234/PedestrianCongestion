@@ -1,38 +1,57 @@
 package com.example.oana_maria.pedestriancongestion.models;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Oana-Maria on 06/01/2018.
  */
 
 public class Location {
 
-    public long pid;
-    public Double latitude;
-    public Double longitude;
-    public String time_stamp;
+    @SerializedName("pid")
+    @Expose
+    private String pid;
+    @SerializedName("latitude")
+    @Expose
+    private String latitude;
+    @SerializedName("longitude")
+    @Expose
+    private String longitude;
+    @SerializedName("time_stamp")
+    @Expose
+    private String timeStamp;
 
-    public Location(){}
-
-    public Location(long pid, Double latitude, Double longitude, String time_stamp) {
-        this.pid = pid;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.time_stamp = time_stamp;
-    }
-
-    public long getPid() {
+    public String getPid() {
         return pid;
     }
 
-    public Double getLatitude() {
+    public void setPid(String pid) {
+        this.pid = pid;
+    }
+
+    public String getLatitude() {
         return latitude;
     }
 
-    public Double getLongitude() {
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
         return longitude;
     }
 
-    public String getTime_stamp() {
-        return time_stamp;
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
     }
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
 }

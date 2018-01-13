@@ -15,6 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="NEW LOCATION"
-        android:id="@+id/new_location"/>
+        android:id="@+id/new_location"
+        android:layout_below="@id/all_locations"/>
 
 </RelativeLayout>
