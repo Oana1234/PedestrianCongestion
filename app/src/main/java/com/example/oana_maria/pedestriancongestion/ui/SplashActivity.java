@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.example.oana_maria.pedestriancongestion.R;
 import com.example.oana_maria.pedestriancongestion.helpers.PostRequest;
 import com.example.oana_maria.pedestriancongestion.taskscheduler.AlarmUpdateManager;
@@ -24,6 +25,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 
@@ -59,35 +61,8 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
             buildGoogleApiClient();
             createLocationRequest();
         }
-    }
-
-    public class PostDataTOServer extends AsyncTask<String, String, String> {
-
-        @Override
-        protected String doInBackground(String... strings) {
-
-
-            String latitude = String.valueOf(mCurrentLocation.getLatitude());
-            String longitude = String.valueOf(mCurrentLocation.getLongitude());
-
-            try {
-                String data = URLEncoder.encode("latitude", "UTF-8")
-                        + "=" + URLEncoder.encode(latitude, "UTF-8");
-
-                data += "&" + URLEncoder.encode("longitude", "UTF-8") + "="
-                        + URLEncoder.encode(longitude, "UTF-8");
-
-
-                PostRequest example = new PostRequest();
-                example.doPostRequest(url_insert_location, data);
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        updateLocation();
     }
 
 
@@ -138,13 +113,8 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
     }
 
     private void updateLocation() {
-        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pendingIntent;
-        Intent myIntent;
-
-        myIntent = new Intent(SplashActivity.this, AlarmUpdateManager.class);
-        pendingIntent = PendingIntent.getBroadcast(this, 0, myIntent, 0);
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), (1000 * 5), pendingIntent);
+        AlarmUpdateManager mManager = new AlarmUpdateManager(mCurrentLocation);
+        mManager.set(getApplicationContext());
     }
 
     @Override
@@ -154,9 +124,7 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
         checkPlayServices();
         if (mGoogleApiClient.isConnected()) {
             startLocationUpdates();
-
-            updateLocation();
-           // new PostDataTOServer().execute();
+            // new PostDataTOServer().execute();
         }
     }
 
