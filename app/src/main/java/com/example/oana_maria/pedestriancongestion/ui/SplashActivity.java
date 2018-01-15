@@ -7,25 +7,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-
+import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.example.oana_maria.pedestriancongestion.R;
+import com.example.oana_maria.pedestriancongestion.helpers.PostRequest;
+import com.example.oana_maria.pedestriancongestion.taskscheduler.AlarmUpdateManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
+import java.io.IOException;
+import java.net.URLEncoder;
 
 public class SplashActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, LocationListener {
 
@@ -36,6 +36,8 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
 
+
+    private static String url_insert_location = "http://18.196.61.10/new_location.php";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
 
 
@@ -57,7 +59,35 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
             buildGoogleApiClient();
             createLocationRequest();
         }
+    }
 
+    public class PostDataTOServer extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+
+            String latitude = String.valueOf(mCurrentLocation.getLatitude());
+            String longitude = String.valueOf(mCurrentLocation.getLongitude());
+
+            try {
+                String data = URLEncoder.encode("latitude", "UTF-8")
+                        + "=" + URLEncoder.encode(latitude, "UTF-8");
+
+                data += "&" + URLEncoder.encode("longitude", "UTF-8") + "="
+                        + URLEncoder.encode(longitude, "UTF-8");
+
+
+                PostRequest example = new PostRequest();
+                example.doPostRequest(url_insert_location, data);
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
     }
 
 
@@ -73,28 +103,6 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
 //                        }
 //                    }
 //                });
-//
-//        googleApiClient = new  GoogleApiClient.Builder(this)
-//                .addApi(LocationServices.API)
-//                .addConnectionCallbacks(this)
-//                .addOnConnectionFailedListener(this)
-//                .build();
-//
-//        locationRequest = new LocationRequest();
-//        locationRequest.setInterval(MINUTE);
-//        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//
-//        mLocationCallback = new LocationCallback() {
-//            @Override
-//            public void onLocationResult(LocationResult locationResult) {
-//                for (Location location : locationResult.getLocations()) {
-//                    Log.d("LOCATIAUPDATAAAAA", String.valueOf(location.getLatitude()));
-//
-//                }
-//            }
-//        };
-//    }
-
 
     public boolean checkLocationPermission() {
         String permission = "android.permission.ACCESS_FINE_LOCATION";
@@ -102,18 +110,15 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
         return (res == PackageManager.PERMISSION_GRANTED);
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
-                // If request is cancelled, the result arrays are empty.
+
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                 }
                 return;
             }
@@ -137,7 +142,7 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
         PendingIntent pendingIntent;
         Intent myIntent;
 
-        myIntent = new Intent(SplashActivity.this, com.example.oana_maria.pedestriancongestion.taskscheduler.AlarmManager.class);
+        myIntent = new Intent(SplashActivity.this, AlarmUpdateManager.class);
         pendingIntent = PendingIntent.getBroadcast(this, 0, myIntent, 0);
         manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), (1000 * 5), pendingIntent);
     }
@@ -147,11 +152,12 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
         super.onResume();
 
         checkPlayServices();
-        if (mGoogleApiClient.isConnected() ) {
+        if (mGoogleApiClient.isConnected()) {
             startLocationUpdates();
-        }
 
-        updateLocation();
+            updateLocation();
+           // new PostDataTOServer().execute();
+        }
     }
 
 
@@ -159,17 +165,16 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
     protected void onStop() {
         super.onStop();
 
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
+//        if (mGoogleApiClient.isConnected()) {
+//            mGoogleApiClient.disconnect();
+//        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        stopLocationUpdates();
+//        stopLocationUpdates();
     }
-
 
 
     protected synchronized void buildGoogleApiClient() {
@@ -219,7 +224,7 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
             if (mCurrentLocation != null) {
                 double latitude = mCurrentLocation.getLatitude();
                 double longtitude = mCurrentLocation.getLongitude();
-                Log.d("THIS IS GOOD", String.valueOf(latitude));
+                Log.d("DISPLAY LOCATION", String.valueOf(latitude));
             }
         }
     }
@@ -228,7 +233,7 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
     @Override
     public void onConnected(Bundle bundle) {
         startLocationUpdates();
-        displayLocation();
+
     }
 
     @Override
@@ -238,12 +243,14 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
 
     @Override
     public void onLocationChanged(Location location) {
+
         mCurrentLocation = location;
-
         Toast.makeText(getApplicationContext(), "Location changed!", Toast.LENGTH_SHORT).show();
-
         displayLocation();
+
+
     }
+
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {

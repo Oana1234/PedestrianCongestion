@@ -27,7 +27,7 @@
 
         <activity android:name=".ui.AllLocationsActivity" />
         <activity android:name=".ui.NewLocationActivity" />
-        <receiver android:name=".taskscheduler.AlarmManager"></receiver>
+        <receiver android:name=".taskscheduler.AlarmUpdateManager"></receiver>
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
