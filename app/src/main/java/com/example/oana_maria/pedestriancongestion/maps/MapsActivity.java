@@ -35,6 +35,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     List<Location> finalLocations;
     ArrayList<LatLng> listCoordinates;
 
+
     private static String url_all_locations = "http://18.196.61.10/get_locations2.php";
 
     @Override
