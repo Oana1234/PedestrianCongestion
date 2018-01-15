@@ -1,11 +1,13 @@
 package com.example.oana_maria.pedestriancongestion.ui;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -46,7 +48,6 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
 
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
             return;
@@ -131,6 +132,16 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
 
     }
 
+    private void updateLocation() {
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pendingIntent;
+        Intent myIntent;
+
+        myIntent = new Intent(SplashActivity.this, com.example.oana_maria.pedestriancongestion.taskscheduler.AlarmManager.class);
+        pendingIntent = PendingIntent.getBroadcast(this, 0, myIntent, 0);
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), (1000 * 5), pendingIntent);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -139,6 +150,8 @@ public class SplashActivity extends AppCompatActivity implements ActivityCompat.
         if (mGoogleApiClient.isConnected() ) {
             startLocationUpdates();
         }
+
+        updateLocation();
     }
 
 
